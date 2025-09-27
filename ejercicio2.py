@@ -7,7 +7,6 @@
 #
 # Llama a la función con el diccionario "bs_data" e imprime su resultado por pantalla:
 import math
-from types import coroutine
 
 bs_data = [
     {"x": 1, "y": 1},
@@ -36,17 +35,28 @@ def only_ints(data: list):
 
 def calculate_distance(coords1: dict, coords2: dict):
     distance = math.dist([coords1["x"], coords1["y"]], [coords2["x"], coords2["y"]])
-    pass
+    return distance
 
 
-def best_road(paradas: list):
-    # i+1;
-    ejemplo = math.dist(
-        [paradas[0]["x"], paradas[0]["y"]], [paradas[1]["x"], paradas[1]["y"]]
-    )
-    print(ejemplo)
+def bus_stops(bs_data: list):
+    data = only_ints(bs_data)
+    route = []
+    total_distance = 0
+    current_point = data[0]
+    remaining_points = data[1:]
+    while remaining_points:
+        min_dist = math.inf
+        near_point = None
+        for i in remaining_points:
+            dist = calculate_distance(current_point, i)
+            if dist < min_dist:
+                min_dist = dist
+                near_point = i
+        route.append(near_point)
+        current_point = near_point
+        total_distance += min_dist
+        remaining_points.remove(near_point)
+    print(f"route:{route}y la distancia es {total_distance}")
 
 
-data = only_ints(bs_data)
-
-print(best_road(data))
+bus_stops(bs_data)
