@@ -35,7 +35,8 @@ def generar_poblacion(medida_tablero: int, medida_poblacion: int) -> list:
 
 
 """
-Funcion para buscar los mejores
+Funcion para buscar los mejores,
+en este caso quien menos collisiones tenga es mejor
 """
 
 
@@ -66,8 +67,13 @@ coger todos los padres y de dos en dos van teniendo hijos
 """
 
 
-def crosover(poblacion: list):
-    pass
+def crossover(padre1: list, padre2: list) -> list:
+    punto_medio = len(padre1) // 2
+    hijo = padre1[:punto_medio]
+    for i in padre2:
+        if i not in hijo:
+            hijo.append(i)
+    return hijo
 
 
 """
@@ -79,13 +85,23 @@ def reproducir_dos_padres(padre1: list, padre2: list):
     pass
 
 
+"""
+Funcion de mutacion
+"""
+
+
 def main():
     random.seed(
         12
     )  # esto es para obtener los mismos resultados aleatorios en cada ejecucion
     poblacion = generar_poblacion(8, 4)
     ordenados_por_fitness = seleccion(poblacion)
-    print(ordenados_por_fitness)
+    # ya estan ordenados ahora quitamos la tupla
+    ordenados_en_lista = list(map(lambda x: x[0], ordenados_por_fitness))
+
+    padre1, padre2 = random.sample(ordenados_en_lista, 2)
+    print(padre1, padre2)
+    crossover(padre1, padre2)
 
 
 main()
