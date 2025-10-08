@@ -31,6 +31,8 @@ def generar_poblacion(medida_tablero: int, medida_poblacion: int) -> list:
     for _ in range(medida_poblacion):
         individuo = generar_individuo(medida_tablero)
         poblacion.append(individuo)
+
+    # poblacion = [generar_individuo(medida_tablero) for _ in range(medida_poblacion)]
     return poblacion
 
 
@@ -67,37 +69,64 @@ coger todos los padres y de dos en dos van teniendo hijos
 """
 
 
-def crossover(padre1: list, padre2: list) -> list:
+def crossover(padre1: list, padre2: list, mutation_chance=0.1) -> list:
     punto_medio = len(padre1) // 2
-    hijo = padre1[:punto_medio]
+    hijo1 = padre1[:punto_medio]
+    hijo2 = padre2[:punto_medio]
     for i in padre2:
-        if i not in hijo:
-            hijo.append(i)
-    return hijo
+        if i not in hijo1:
+            hijo1.append(i)
+    for i in padre1:
+        if i not in hijo2:
+            hijo2.append(i)
+
+    # return mutacion(hijo1, mutation_chance), mutacion(hijo2, mutation_chance)
 
 
-"""
-Funcion para reproducir_dos_padres
-"""
+def reproducir_todos_padres(poblacion: list, padre2: list):
+    random.shuffle(poblacion)
+    hijos=[]
+    for i in range(0:len(poblacion):2)>
+        hijo1, hijo2 = crossover(poblacion[i], poblacion[i+1])
+        hijos += hijo1
+        hijos += hijo2
 
-
-def reproducir_dos_padres(padre1: list, padre2: list):
-    pass
+    return hijos
 
 
 """
 Funcion de mutacion
 """
 
+def mutacion(individuo: list, mutation_chance = 0.1) -> list:
+    if random.random() < mutation_chance:
+        pos1 = random.randint(len(individuo))
+        pos2 = random.randint(len(individuo))
+        individuo[pos1], individuo[pos2] = individuo[pos2], individuo[pos1]
+    return individuo
 
 def main():
+    medida_poblacion = 10
     random.seed(
         12
     )  # esto es para obtener los mismos resultados aleatorios en cada ejecucion
-    poblacion = generar_poblacion(8, 4)
+    poblacion = generar_poblacion(8, medida_poblacion)
+
+
+    # while 
+    # :
+    
+    hijos = crossover(padres)
+
+    poblacion = padres + hijos
+
     ordenados_por_fitness = seleccion(poblacion)
     # ya estan ordenados ahora quitamos la tupla
-    ordenados_en_lista = list(map(lambda x: x[0], ordenados_por_fitness))
+    ordenados_en_lista = list(
+        map(lambda x: x[0], ordenados_por_fitness)
+    )  # ordenados_por_fitness[:][1]
+
+    poblacion[:] = poblacion[:medida_poblacion]
 
     padre1, padre2 = random.sample(ordenados_en_lista, 2)
     print(padre1, padre2)
