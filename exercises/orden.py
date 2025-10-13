@@ -10,5 +10,5 @@ def clean_order(lista: list):
     return clear_list
 
 
-solucion = clean_order(co_data)
+solucion = clean_order
 print(solucion)
