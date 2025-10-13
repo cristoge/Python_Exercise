@@ -8,42 +8,55 @@
 #
 # I utilitza un fitness score de manera que la millor solució tingui un valor 0.
 #
-# Utilitza els apunts de classe per tal de realitzar tots els passos d’un algoritme genetic:
-# 	reproducció, mutació, selecció…
-# consejos, diversity score,
-# usar una seed
-# consejos: aplicar comprehension list
 
 import random
 
 """
-Generacion de poblacion
+Implementar y definir el objeto individuo
 """
 
 
 def generar_individuo(medida: int) -> list:
+    """
+    Crea un individuo que es representado en una lista de ints,
+    el indice es la fila y el valor de la columna es donde se coloca la reina
+    """
+
     nuevo_individuo = list(range(medida))
     random.shuffle(nuevo_individuo)
     return nuevo_individuo
 
 
+"""
+Definir la poblacion, un conjunto de individuos
+"""
+
+
 def generar_poblacion(medida_tablero: int, medida_poblacion: int) -> list:
-    # generando la poblacion mediante la comprension de listas
+    """
+    Genera la poblacion inicial mediante comprension de listas.
+    Args:
+    medida_tablero: tamaño del medida_tablero
+    medida_poblacion: numero de individuos
+    Returns:
+    Lista de individuos en este caso la poblacion inicial
+    """
     poblacion = [generar_individuo(medida_tablero) for _ in range(medida_poblacion)]
     return poblacion
 
 
 """
-Funcion para buscar los mejores,
-en este caso quien menos collisiones tenga es mejor
+Evalucion(fitness)
 """
 
 
 def fitness(individuo: list):
     """
-    En este caso calculamos las colisiones que haya,
-    si una reuna esta en la misma diagonal se añade una colision a la lista
-    Al final devuelve la cantidad de colisiones que haya
+    Calcula el total de colisiones diagonales entre reinas
+    Args:
+        individuo: lista que representa una solucion
+    Returns:
+        Numero total de colisiones
     """
     colision = 0
     for i in range(len(individuo)):
@@ -53,10 +66,20 @@ def fitness(individuo: list):
     return colision
 
 
+"""
+Definir la seleccion, la reprodccion y la mutacion
+"""
+
+
 def evolucion(poblacion: list):
     """
-    Aqui clasificamos a la poblacion por el numero de colisiones que tenga
-    y devolvemos la poblacion ordenada
+    Ordena la población segun su numero de colisiones.
+
+    Args:
+        poblacion: lista de individuos.
+
+    Returns:
+        Lista de individuos ordenada por el numero de colisiones.
     """
     fitness_poblacion = [(i, fitness(i)) for i in poblacion]
     fitness_poblacion.sort(key=lambda x: x[1])
@@ -65,10 +88,13 @@ def evolucion(poblacion: list):
 
 def crossover(padre1: list, padre2: list, mutation_chance=0.1):
     """
-    Esta es la funcion para mezclar padres, en este caso
-    pasamos por parametro los 2 padres y el chance de mutacion para poder
-    tener individuos mas variados, en este caso los hijos siempre seran
-    la mitad de cada padre
+    Mezcla a los padres para generos 2 nuevos hijos, combinando la mitad
+    de cada padre, haciendo que no haya columnas duplicadas.
+    Args:
+        padre1, padre2: listas que representan a los padres
+        mutation_chance: probabilidad de mutacion de un hijo
+    Returns:
+        Una tupla con el resultado de 2 hijos
     """
     punto_medio = len(padre1) // 2
     hijo1 = padre1[:punto_medio]
@@ -85,9 +111,11 @@ def crossover(padre1: list, padre2: list, mutation_chance=0.1):
 
 def reproducir_todos_padres(poblacion: list):
     """
-    Aqui llamamos a la funcion que definimos antes para mezclar,
-    en este caso es para reproducir todos los padres, primero los mezcla con el shuffle
-    y por ultimo llama al crossover y devuelve una lista de hijos nueva
+    Reproduce la poblacion, mezclando a los individuos por pares
+    Args:
+        poblacion: lista de padres seleccionados.
+    Returns:
+        Lista de nuevos hijos generados mediante crossover.
     """
     random.shuffle(poblacion)
     hijos = []
@@ -99,12 +127,16 @@ def reproducir_todos_padres(poblacion: list):
     return hijos
 
 
-"""
-Funcion de mutacion
-"""
-
-
-def mutacion(individuo: list, mutation_chance=0.1) -> list:
+def mutacion(individuo: list, mutation_chance) -> list:
+    """
+    Aplica una mutación random al individuo haciendo que se intercambien
+    dos posiciones
+    Args:
+        individuo: lista de ints
+        mutation_chance: probabilidad de mutación.
+    Returns:
+        Individuo posiblemente mutado.
+    """
     if random.random() < mutation_chance:
         pos1 = random.randint(0, len(individuo) - 1)
         pos2 = random.randint(0, len(individuo) - 1)
@@ -112,42 +144,38 @@ def mutacion(individuo: list, mutation_chance=0.1) -> list:
     return individuo
 
 
+"""
+Hilo principal
+"""
+
+
 def main():
+    """
+    Ejecuta el programa para el problema de las 8 reinas.
+    -Definimos la medida de la poblacion y el tablero.
+    -Aplica una seed para obtener los mismos resultados aleatorios en cada ejecucion
+    -Genera una poblacion inicial.
+    -Evalua y selecciona los mejores individuos.
+    -Aplica reproduccion y mutacion.
+    -Al encontrar la solucion con el fitness 0 o al alcanzar.
+    el numero limite de generaciones finaliza el programa.
+    """
     medida_poblacion = 10
     medida_tablero = 8
-    random.seed(
-        12
-    )  # esto es para obtener los mismos resultados aleatorios en cada ejecucion
+    random.seed(12)
     poblacion = generar_poblacion(medida_tablero, medida_poblacion)
-    """
-    creamos un total de generaciones maximas para que no pete 
-    en este caso lo fijamos en 100k
-    """
     generaciones_maximas = 100000
     for i in range(generaciones_maximas):
-        poblacion = evolucion(
-            poblacion
-        )  # aqui hacemos que la poblacion se ordene por los mejores que tienen menos colisiones
-        mejor = poblacion[
-            0
-        ]  # en este caso al estar ordenado la posicion 0 es la que tiene menos colisiones
-        mejor_fitness = fitness(
-            mejor
-        )  # aqui volvemos a llamar a la funcion de fitness para que nos de las colisones
-        if (
-            mejor_fitness == 0
-        ):  # y si da la casualidad de que el fitness es 0 significa que encontramos nuestro resultado
-            print(
-                f"solucion encontrada en la generacion {i} y {mejor}"
-            )  # imprimimos la solucion
-            break  # rompemos el bucle
-        padres = poblacion[
-            : medida_poblacion // 2
-        ]  ## aqui divido mi poblacion a la mitad para ir variando la poblacion en este caso en la funcion reoordena a los mejores para la variedad
-        hijos = reproducir_todos_padres(
-            padres
-        )  # ahora mezclo a todos los padres para que me den individuos nuevos
-        poblacion = padres + hijos  # y los mezclo aqui para volver a empezar el bucle
+        poblacion = evolucion(poblacion)
+        mejor = poblacion[0]
+        mejor_fitness = fitness(mejor)
+        if mejor_fitness == 0:
+            print(f"solucion encontrada en la generacion {i} y {mejor}")
+            break
+        padres = poblacion[: medida_poblacion // 2]
+        hijos = reproducir_todos_padres(padres)
+        poblacion = padres + hijos
+        print("esta es la generacion ", i)
 
 
 main()
